@@ -10,6 +10,8 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
 function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -193,23 +195,32 @@ var PuppeteerRenderer = function () {
                             return page.evaluateOnNewDocument(`(function () { window['${options.injectProperty}'] = ${JSON.stringify(options.inject)}; })();`);
 
                           case 7:
+                            if (!(options.cookies && options.cookies.length)) {
+                              _context3.next = 10;
+                              break;
+                            }
+
+                            _context3.next = 10;
+                            return page.setCookie.apply(page, _toConsumableArray(options.cookies));
+
+                          case 10:
                             baseURL = `http://localhost:${rootOptions.server.port}`;
 
                             // Allow setting viewport widths and such.
 
                             if (!options.viewport) {
-                              _context3.next = 11;
+                              _context3.next = 14;
                               break;
                             }
 
-                            _context3.next = 11;
+                            _context3.next = 14;
                             return page.setViewport(options.viewport);
 
-                          case 11:
-                            _context3.next = 13;
+                          case 14:
+                            _context3.next = 16;
                             return _this2.handleRequestInterception(page, baseURL);
 
-                          case 13:
+                          case 16:
 
                             // Hack just in-case the document event fires before our main listener is added.
                             if (options.renderAfterDocumentEvent) {
@@ -222,50 +233,50 @@ var PuppeteerRenderer = function () {
                             }
 
                             navigationOptions = options.navigationOptions ? _extends({ waituntil: 'networkidle0' }, options.navigationOptions) : { waituntil: 'networkidle0' };
-                            _context3.next = 17;
+                            _context3.next = 20;
                             return page.goto(`${baseURL}${route}`, navigationOptions);
 
-                          case 17:
+                          case 20:
 
                             // Wait for some specific element exists
                             renderAfterElementExists = _this2._rendererOptions.renderAfterElementExists;
 
                             if (!(renderAfterElementExists && typeof renderAfterElementExists === 'string')) {
-                              _context3.next = 21;
+                              _context3.next = 24;
                               break;
                             }
 
-                            _context3.next = 21;
+                            _context3.next = 24;
                             return page.waitForSelector(renderAfterElementExists);
 
-                          case 21:
-                            _context3.next = 23;
+                          case 24:
+                            _context3.next = 26;
                             return page.evaluate(waitForRender, _this2._rendererOptions);
 
-                          case 23:
+                          case 26:
                             _context3.t0 = route;
-                            _context3.next = 26;
+                            _context3.next = 29;
                             return page.evaluate('window.location.pathname');
 
-                          case 26:
+                          case 29:
                             _context3.t1 = _context3.sent;
-                            _context3.next = 29;
+                            _context3.next = 32;
                             return page.content();
 
-                          case 29:
+                          case 32:
                             _context3.t2 = _context3.sent;
                             result = {
                               originalRoute: _context3.t0,
                               route: _context3.t1,
                               html: _context3.t2
                             };
-                            _context3.next = 33;
+                            _context3.next = 36;
                             return page.close();
 
-                          case 33:
+                          case 36:
                             return _context3.abrupt('return', result);
 
-                          case 34:
+                          case 37:
                           case 'end':
                             return _context3.stop();
                         }
@@ -292,7 +303,16 @@ var PuppeteerRenderer = function () {
   }, {
     key: 'destroy',
     value: function destroy() {
-      this._puppeteer.close();
+      if (this._puppeteer) {
+        try {
+          this._puppeteer.close();
+        } catch (e) {
+          console.error(e);
+          console.error('[Prerenderer - PuppeteerRenderer] Unable to close Puppeteer');
+
+          throw e;
+        }
+      }
     }
   }]);
 
