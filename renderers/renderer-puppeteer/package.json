@@ -1,6 +1,6 @@
 {
-  "name": "@prerenderer/renderer-puppeteer",
-  "version": "0.2.0",
+  "name": "@kaokei/renderer-puppeteer",
+  "version": "0.2.1",
   "description": "A renderer for @prerenderer/prerenderer that uses puppeteer to prerender pages.",
   "license": "MIT",
   "main": "index.js",
@@ -40,7 +40,7 @@
     "email": "tribex10@gmail.com"
   },
   "dependencies": {
-    "promise-limit": "^2.5.0",
+    "promise-limit": "^2.5.0"
   },
   "peerDependencies": {
     "puppeteer": ">= 2"
