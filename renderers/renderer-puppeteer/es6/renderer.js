@@ -62,9 +62,16 @@ class PuppeteerRenderer {
     page.on('request', req => {
       // Skip third party requests if needed.
       if (this._rendererOptions.skipThirdPartyRequests) {
-        if (!req.url().startsWith(baseURL)) {
-          req.abort()
-          return
+        if (this._rendererOptions.customSkipRequests) {
+          if (this._rendererOptions.customSkipRequests(req)) {
+            req.abort()
+            return
+          }
+        } else {
+          if (!req.url().startsWith(baseURL)) {
+            req.abort()
+            return
+          }
         }
       }
 
@@ -93,7 +100,7 @@ class PuppeteerRenderer {
             }
 
             if (options.cookies && options.cookies.length) {
-              await page.setCookie(...options.cookies);
+              await page.setCookie(...options.cookies)
             }
 
             const baseURL = `http://localhost:${rootOptions.server.port}`
@@ -113,8 +120,8 @@ class PuppeteerRenderer {
               }, this._rendererOptions)
             }
 
-            const navigationOptions = (options.navigationOptions) ? { waituntil: 'networkidle0', ...options.navigationOptions } : { waituntil: 'networkidle0' };
-            await page.goto(`${baseURL}${route}`, navigationOptions);
+            const navigationOptions = (options.navigationOptions) ? { waituntil: 'networkidle0', ...options.navigationOptions } : { waituntil: 'networkidle0' }
+            await page.goto(`${baseURL}${route}`, navigationOptions)
 
             // Wait for some specific element exists
             const { renderAfterElementExists } = this._rendererOptions
@@ -141,7 +148,7 @@ class PuppeteerRenderer {
   }
 
   destroy () {
-    if(this._puppeteer) {
+    if (this._puppeteer) {
       try {
         this._puppeteer.close()
       } catch (e) {
