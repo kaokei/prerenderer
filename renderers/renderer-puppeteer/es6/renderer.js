@@ -92,6 +92,10 @@ class PuppeteerRenderer {
               await page.evaluateOnNewDocument(`(function () { window['${options.injectProperty}'] = ${JSON.stringify(options.inject)}; })();`)
             }
 
+            if (options.cookies && options.cookies.length) {
+              await page.setCookie(...options.cookies);
+            }
+
             const baseURL = `http://localhost:${rootOptions.server.port}`
 
             // Allow setting viewport widths and such.
@@ -108,7 +112,7 @@ class PuppeteerRenderer {
                 })
               }, this._rendererOptions)
             }
-            
+
             const navigationOptions = (options.navigationOptions) ? { waituntil: 'networkidle0', ...options.navigationOptions } : { waituntil: 'networkidle0' };
             await page.goto(`${baseURL}${route}`, navigationOptions);
 
@@ -143,7 +147,7 @@ class PuppeteerRenderer {
       } catch (e) {
         console.error(e)
         console.error('[Prerenderer - PuppeteerRenderer] Unable to close Puppeteer')
-		  
+
         throw e
       }
     }
