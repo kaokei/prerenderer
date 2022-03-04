@@ -129,9 +129,16 @@ var PuppeteerRenderer = function () {
                 page.on('request', function (req) {
                   // Skip third party requests if needed.
                   if (_this._rendererOptions.skipThirdPartyRequests) {
-                    if (!req.url().startsWith(baseURL)) {
-                      req.abort();
-                      return;
+                    if (_this._rendererOptions.customSkipRequests) {
+                      if (_this._rendererOptions.customSkipRequests(req)) {
+                        req.abort();
+                        return;
+                      }
+                    } else {
+                      if (!req.url().startsWith(baseURL)) {
+                        req.abort();
+                        return;
+                      }
                     }
                   }
 
